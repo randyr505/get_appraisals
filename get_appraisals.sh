@@ -15,34 +15,33 @@ validate_pdf() {
 }
 
 
-printf  "%-15s %-20s %-20s %-20s %-13s %-10s %s\n" 'Property Id' 'Previous Appraisal' 'Proposed Appraisal' 'Current Appraisal' 'Square Feet' 'Cost/sf' 'Address' | tee -a $appraisals
+printf  "%-15s %-20s %-20s %-20s %-13s %-10s %s\n" 'Property Id' 'Previous Appraisal' 'Proposed Appraisal' 'Current Appraisal' 'Square Feet' 'Cost/sf' 'Address' | tee -a $results
 
 for property_id in $(awk '{print$1}' $input | egrep -v '([a-z]|[A-Z]|#)')
 do
   echo "Fetching value number $count ($property_id)"
 
   # Prevent site from blocking you by mimicing an actual browser
-  check_file ${property_id}.html || \
+  check_file $data/${property_id}.html || \
     { sleep 1; wget --quiet --header="$user_agent_header" --header="$language_header" --header="$referer_header" \
-      "${property_url}${property_id}&year=$year" -O $data/${property_id}.html; }
+      --header="Accept: text/html" "${property_url}${property_id}&year=$year" -O $data/${property_id}.html; }
 
-  check_file ${property_id}.pdf || \
+  check_file $data/${property_id}.pdf || \
     { sleep 1; wget --quiet --header="$user_agent_header" --header="$language_header" --header="$referer_header" \
-      "${property_notice}/${property_id}.pdf" -O $data/${property_id}.pdf; }
+      --header="Accept: text/html" "${property_notice}/${property_id}.pdf" -O $data/${property_id}.pdf; }
 
     values="0"
-    validate_pdf ${property_id}.pdf && values=$(pdfgrep 'Appraised Value' ${property_id}.pdf | awk '{a=NF-1; print$NF" "$a}')
+    validate_pdf $data/${property_id}.pdf && values=$(pdfgrep 'Appraised Value' $data/${property_id}.pdf | awk '{a=NF-1; print$NF" "$a}')
     previous_appraisal="$(echo $values | awk '{print$2}' | sed '/,/s///g')"
     
     proposed_appraisal="$(echo $values | awk '{print$1}' | sed '/,/s///g')"
     [[ $previous_appraisal =~ $re ]] || previous_appraisal="0"
     [[ $proposed_appraisal =~ $re ]] || proposed_appraisal="0"
 
-  square_feet=$(egrep 'Total Main Area|Total Improvement Main Area' ${property_id}.html | awk -F\> '{print$4}' | awk '{print$1}' | sed '/,/s///g')
+  square_feet=$(egrep 'Total Main Area|Total Improvement Main Area' $data/${property_id}.html | awk -F\> '{print$4}' | awk '{print$1}' | sed '/,/s///g')
   square_feet=$(echo $square_feet | awk '{print$1}')
 
   check_file $input && current_appraisal="$(grep $property_id $input | awk '{a=NF-2; print $a}')"
-  #if [ "$current_appraisal" = "ISD" ];
   if  ! [[ $current_appraisal =~ $re ]];
   then
     current_appraisal="0" 
@@ -52,10 +51,9 @@ do
     costsf=$(echo "scale=2; $current_appraisal_fmtd/$square_feet" | bc -l)
   fi
 
-  check_file ${property_id}.html && address=$(grep "Property Address" ${property_id}.html | awk -F\> '{print$4}' | awk -F\< '{print$1}') || address="N/A"
+  check_file $data/${property_id}.html && address=$(grep "Property Address" $data/${property_id}.html | awk -F\> '{print$4}' | awk -F\< '{print$1}') || address="N/A"
 
-  printf "%-15d %-20d %-20d %-20d %-13d %-10s %-60s\n" $property_id $previous_appraisal $proposed_appraisal $current_appraisal $square_feet $costsf "$address" | tee -a $appraisals
-#$%'.2f
+  printf "%-15d %-20s %-20s %-20s %-13s %-10s %-60s\n" $property_id $previous_appraisal $proposed_appraisal $current_appraisal $square_feet $costsf "$address" | tee -a $results
   
   let count=$count+1
 done
