@@ -1,2 +1,6 @@
 get_appraisals.cfg
-data/*
+**.html
+**.pdf
+**.results
+**.input
+**.csv
