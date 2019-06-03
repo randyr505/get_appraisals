@@ -21,5 +21,10 @@ Fetching value number 2 (2000002)
 
 2000002         300000               320000               314364               2630          119.53     101 Main St
 
+# To Do
+Need to add the land value and delta of owner's property
+
+Neet to add pool and other additions values
+
 # Buy me a coffee
 https://paypal.me/randyr505
