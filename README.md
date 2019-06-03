@@ -28,5 +28,8 @@ Need to add pool and other additions values
 
 Need to consider Total Market Value (TMV) vs Appraised value (currently used)
 
+# Notes
+Make sure to also account for differences in your lot size, upgrades, lack of upgrades, covered patios, etc.
+
 # Buy me a coffee
 https://paypal.me/randyr505
