@@ -24,7 +24,9 @@ Fetching value number 2 (2000002)
 # To Do
 Need to add the land value and delta of owner's property
 
-Neet to add pool and other additions values
+Need to add pool and other additions values
+
+Need to consider Total Market Value (TMV) vs Appraised value (currently used)
 
 # Buy me a coffee
 https://paypal.me/randyr505
